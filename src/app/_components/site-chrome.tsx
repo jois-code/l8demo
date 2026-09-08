@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAuth } from "./auth-context";
 
 /* ------------------------------------------------------------------ */
 /*  shared nav data                                                    */
@@ -101,6 +102,7 @@ function NavItem({
 }
 
 export function Header({ current }: { current?: string }) {
+  const { user, logout, isLoading } = useAuth();
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuClosing, setMenuClosing] = useState(false);
@@ -205,17 +207,60 @@ export function Header({ current }: { current?: string }) {
                 </div>
               )}
             </div>
+
+            {/* auth indicator */}
+            {!isLoading && (
+              <div className="flex items-center gap-3 ml-3 pl-3 border-l border-border">
+                {user ? (
+                  <>
+                    <span className="text-[0.72rem] text-fg-dim tracking-wider uppercase">
+                      <span className="text-accent">●</span>{" "}
+                      {user.srn}
+                    </span>
+                    {user.role === "admin" && (
+                      <Link href="/admin" className="navlink">
+                        admin
+                      </Link>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => logout()}
+                      className="navlink text-[var(--danger)] hover:text-[var(--danger)]"
+                    >
+                      logout
+                    </button>
+                  </>
+                ) : (
+                  <Link href="/login" className="navlink">
+                    login
+                  </Link>
+                )}
+              </div>
+            )}
           </nav>
 
-          <button
-            type="button"
-            className="lg:hidden btn px-3 py-2"
-            aria-expanded={open}
-            aria-label="Toggle navigation"
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? "[ x ]" : "[ = ]"}
-          </button>
+          {/* mobile: auth + hamburger */}
+          <div className="lg:hidden flex items-center gap-2">
+            {!isLoading && !user && (
+              <Link href="/login" className="btn px-3 py-2 text-[0.72rem]">
+                login
+              </Link>
+            )}
+            {!isLoading && user && (
+              <span className="text-[0.68rem] text-accent mr-1">
+                ● {user.srn}
+              </span>
+            )}
+            <button
+              type="button"
+              className="btn px-3 py-2"
+              aria-expanded={open}
+              aria-label="Toggle navigation"
+              onClick={() => setOpen((v) => !v)}
+            >
+              {open ? "[ x ]" : "[ = ]"}
+            </button>
+          </div>
         </div>
       </div>
 

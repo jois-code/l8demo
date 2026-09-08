@@ -544,7 +544,163 @@
   }
 }
 
+/* ---------- login page ---------- */
+
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  position: relative;
+  z-index: 3;
+  padding: 2rem 1rem;
+}
+
+.login-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 50% at 50% 30%,
+      color-mix(in srgb, var(--accent) 8%, transparent),
+      transparent
+    );
+}
+
+.login-container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  width: 100%;
+  max-width: 26rem;
+}
+
+.login-card {
+  width: 100%;
+  background: color-mix(in srgb, var(--bg-2) 92%, black);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent),
+    0 40px 100px -50px var(--glow),
+    0 0 60px -30px color-mix(in srgb, var(--accent) 18%, transparent);
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.login-card:focus-within {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent),
+    0 40px 100px -50px var(--glow),
+    0 0 80px -20px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.login-body {
+  padding: 2rem 2rem 2.2rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.login-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.login-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.88rem;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  outline: 0;
+  caret-color: var(--accent);
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.login-input::placeholder {
+  color: var(--fg-faint);
+  opacity: 0.6;
+}
+
+.login-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.login-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.login-error {
+  font-size: 0.78rem;
+  color: var(--fg-dim);
+  padding: 0.5rem 0.7rem;
+  border-left: 2px solid var(--danger);
+  background: color-mix(in srgb, var(--danger) 5%, transparent);
+}
+
+.login-back {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--fg-faint);
+  transition: color 0.16s;
+}
+
+.login-back:hover {
+  color: var(--accent);
+}
+
+/* shake animation for errors */
+.login-shake {
+  animation: login-shake 0.4s ease-out;
+}
+
+/* loading dots */
+.login-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15em;
+}
+
+.login-dot-anim::after {
+  content: "";
+  animation: login-dots-anim 1.4s steps(4) infinite;
+}
+
 /* ---------- keyframes ---------- */
+
+@keyframes login-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-8px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-5px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+
+@keyframes login-dots-anim {
+  0% { content: ""; }
+  25% { content: "."; }
+  50% { content: ".."; }
+  75% { content: "..."; }
+}
 
 @keyframes blink {
   50% {
@@ -653,6 +809,147 @@
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+/* ---------- admin page ---------- */
+
+.admin-page {
+  min-height: 100vh;
+  position: relative;
+  z-index: 3;
+  padding: 2.5rem 1rem 4rem;
+}
+
+.admin-container {
+  width: 100%;
+  max-width: 1100px;
+  margin-inline: auto;
+}
+
+.admin-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.admin-tab {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  background: transparent;
+  border: 0;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  transition: color 0.16s;
+}
+
+.admin-tab:hover {
+  color: var(--fg-dim);
+}
+
+.admin-tab-active {
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+  margin-bottom: -0.55rem;
+  padding-bottom: calc(0.4rem + 0.55rem);
+}
+
+.admin-card {
+  background: color-mix(in srgb, var(--bg-2) 92%, black);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 60px -30px var(--glow);
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 40%, transparent) transparent;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 0.7rem 1rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-3) 50%, transparent);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  white-space: nowrap;
+}
+
+.admin-table tbody tr {
+  transition: background 0.12s;
+}
+
+.admin-table tbody tr:hover {
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+}
+
+.admin-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.45rem;
+  border: 1px solid var(--border);
+  color: var(--fg-dim);
+}
+
+.admin-badge-admin {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.admin-badge-warn {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+}
+
+.admin-role-btn {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.16s;
+}
+
+.admin-role-btn-promote {
+  color: var(--accent);
+}
+
+.admin-role-btn-promote:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.admin-role-btn-demote {
+  color: var(--danger);
+}
+
+.admin-role-btn-demote:hover {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

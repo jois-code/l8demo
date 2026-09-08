@@ -5,38 +5,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { InteractiveTerminal } from "../_components/interactive-terminal";
 import { Header, Footer } from "../_components/site-chrome";
 import {
-  EVENTS,
   EVENT_FILTERS,
   matchesFilter,
   statusClasses,
   type L8Event,
 } from "./events-data";
 
-const EVENTS_SCRIPT = `$ ls events/
-${EVENTS.map((e) => e.id).join("  ")}
-$ cat events/${EVENTS[0].id}.md
-${EVENTS[0].desc}`;
-
-const EVENTS_FS = {
-  dir: "events",
-  entries: EVENTS.map((e) => e.id),
-  files: Object.fromEntries(
-    EVENTS.flatMap((e) => {
-      const body = `${e.title}\n${e.date} · ${e.venue}\n${e.desc}`;
-      return [
-        [e.id, body],
-        [`${e.id}.md`, body],
-        [`events/${e.id}.md`, body],
-      ];
-    }),
-  ),
-} as const;
+export type EventWithForm = L8Event & { form_id?: string | null };
 
 /* ------------------------------------------------------------------ */
 /*  detail                                                              */
 /* ------------------------------------------------------------------ */
 
-function Detail({ event }: { event: L8Event }) {
+function Detail({ event }: { event: EventWithForm }) {
   const meta: [string, string][] = [
     ["date", event.date],
     ["venue", event.venue],
@@ -92,7 +73,7 @@ function Detail({ event }: { event: L8Event }) {
             }
           </p>
         ) : (
-          <Link href="/#top" className="btn btn-solid">
+          <Link href={event.form_id ? `/forms/${event.form_id}/view` : "/#top"} className="btn btn-solid">
             &gt; {event.actionText}
           </Link>
         )}
@@ -105,17 +86,17 @@ function Detail({ event }: { event: L8Event }) {
 /*  page                                                                */
 /* ------------------------------------------------------------------ */
 
-export default function EventsClient() {
+export default function EventsClient({ initialEvents }: { initialEvents: EventWithForm[] }) {
   const [filter, setFilter] =
     useState<(typeof EVENT_FILTERS)[number]>("ALL");
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<string>(EVENTS[0].id);
+  const [selected, setSelected] = useState<string>(initialEvents[0]?.id || "");
   const searchRef = useRef<HTMLInputElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return EVENTS.filter((ev) => {
+    return initialEvents.filter((ev) => {
       const byText =
         q === "" ||
         `${ev.title} ${ev.desc} ${ev.tags.join(" ")} ${ev.date}`
@@ -123,7 +104,32 @@ export default function EventsClient() {
           .includes(q);
       return byText && matchesFilter(ev, filter);
     });
-  }, [filter, query]);
+  }, [filter, query, initialEvents]);
+
+  const EVENTS_SCRIPT = useMemo(() => {
+    if (initialEvents.length === 0) return "$ ls events/";
+    return `$ ls events/
+${initialEvents.map((e) => e.id).join("  ")}
+$ cat events/${initialEvents[0].id}.md
+${initialEvents[0].desc}`;
+  }, [initialEvents]);
+
+  const EVENTS_FS = useMemo(() => {
+    return {
+      dir: "events",
+      entries: initialEvents.map((e) => e.id),
+      files: Object.fromEntries(
+        initialEvents.flatMap((e) => {
+          const body = `${e.title}\n${e.date} · ${e.venue}\n${e.desc}`;
+          return [
+            [e.id, body],
+            [`${e.id}.md`, body],
+            [`events/${e.id}.md`, body],
+          ];
+        }),
+      ),
+    } as const;
+  }, [initialEvents]);
 
   const select = useCallback((id: string) => {
     setSelected(id);
@@ -152,7 +158,7 @@ export default function EventsClient() {
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
-  const event = EVENTS.find((e) => e.id === selected) ?? EVENTS[0];
+  const event = initialEvents.find((e) => e.id === selected) ?? initialEvents[0];
 
   return (
     <>
