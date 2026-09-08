@@ -2,13 +2,6 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { signToken, COOKIE_NAME } from "@/lib/jwt";
 
-/* ------------------------------------------------------------------ */
-/*  POST /api/auth/login                                               */
-/*  1. Proxy credentials → PESU Academy login                         */
-/*  2. Fetch full profile → PESU dispatcher                           */
-/*  3. Upsert user → Turso DB                                        */
-/*  4. Sign JWT → HttpOnly cookie                                     */
-/* ------------------------------------------------------------------ */
 
 const LOGIN_URL =
   "https://www.pesuacademy.com/MAcademy/mobile/mobilelogin/auth";
