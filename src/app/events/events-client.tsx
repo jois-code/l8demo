@@ -286,9 +286,9 @@ ${initialEvents[0].desc}`;
                     <div className="truncate">{ev.venue}</div>
                   </div>
                   <div className="mt-auto pt-3 border-t border-border flex flex-wrap gap-1.5">
-                    {ev.tags.slice(0, 3).map((t) => (
+                    {ev.tags.slice(0, 3).map((t, idx) => (
                       <span
-                        key={t}
+                        key={`${t}-${idx}`}
                         className="font-mono text-[0.62rem] text-fg-faint"
                       >
                         #{t}

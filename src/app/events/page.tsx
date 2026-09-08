@@ -9,6 +9,8 @@ export const metadata: Metadata = {
     "Layer8 events — CTFs, workshops and seminars, live and archived, with venue, prerequisites and how to take part.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function EventsPage() {
   const client = await db();
   const result = await client.execute(`SELECT * FROM events ORDER BY date DESC`);

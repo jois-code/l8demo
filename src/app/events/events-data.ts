@@ -22,58 +22,6 @@ export type L8Event = {
   tags: string[];
 };
 
-export const EVENTS: L8Event[] = [
-  {
-    id: "deeplinks",
-    title: "Deeplinks Workshop",
-    status: "PENDING",
-    category: "Workshop",
-    date: "2026.09.30",
-    venue: "Seminar Hall, PES University",
-    desc: "Layer8 workshop diving into deep link exploitation, URL scheme hijacking, and mobile/web inter-app communication vulnerabilities.",
-    prerequisites: "Basic web knowledge, HTTP fundamentals",
-    flags: "Hands-on exploitation challenges.",
-    actionText: "register_now",
-    tags: ["workshop", "deeplinks", "mobile", "web", "exploitation"],
-  },
-  {
-    id: "sudo-rm",
-    title: "sudo$rm CTF 2026",
-    status: "ARCHIVED",
-    category: "CTF",
-    date: "2026.04.11",
-    venue: "Seminar Hall 3 & 4, PES University",
-    desc: "Layer8 Capture The Flag contest. Participants solved multi-domain challenges across web exploitation, cryptography, OSINT, and reverse engineering across 4 progressive waves.",
-    prerequisites:
-      "Web exploitation, Cryptography, OSINT, Linux CLI & Network Analysis",
-    flags:
-      "57 teams (209 participants) competed across 4 progressive waves on a custom CTF platform with live leaderboard.",
-    actionText: "view_logs",
-    tags: ["ctf", "jeopardy", "web", "crypto", "osint", "sudorm"],
-  },
-  {
-    id: "escape-the-matrix",
-    title: "Escape The Matrix",
-    status: "ARCHIVED",
-    category: "Contest",
-    date: "2025.10.11",
-    venue: "Ground Floor Classrooms 001 & 002, PES University",
-    desc: "Layer8 X Maaya flagship cybersecurity escape room event. Participants analyzed hidden clues, solved interactive murder mysteries, and decoded cryptographic ciphers.",
-    prerequisites:
-      "Beginner friendly — cipher decoding, problem solving & critical thinking",
-    flags:
-      "₹8,000 prize pool. 24 registered teams (20 active participant teams).",
-    actionText: "view_logs",
-    tags: [
-      "escape-room",
-      "maaya",
-      "ciphers",
-      "crypto",
-      "puzzle",
-      "murder-mystery",
-    ],
-  },
-];
 
 export const EVENT_FILTERS = [
   "ALL",
