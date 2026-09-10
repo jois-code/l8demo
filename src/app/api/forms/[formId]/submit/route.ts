@@ -143,10 +143,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ formId:
       await client.batch(queries, "write");
     }
 
-    // Fire-and-forget: sync to Google Sheets
-    syncToGoogleSheets(client, formId, form.title as string, user, activeAnswers).catch((err) => {
+    // Sync to Google Sheets (awaited to ensure completion in serverless environments)
+    try {
+      await syncToGoogleSheets(client, formId, form.title as string, user, activeAnswers);
+    } catch (err) {
       console.error("[sheets-sync] Background sync failed:", err);
-    });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
@@ -212,5 +214,5 @@ async function syncToGoogleSheets(
     }),
   ];
 
-  await appendFormSubmissionToSheet(formTitle, headerRow, dataRow);
+  await appendFormSubmissionToSheet(formTitle, headerRow, dataRow, user.srn);
 }
