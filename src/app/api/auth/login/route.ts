@@ -234,7 +234,7 @@ export async function POST(req: Request) {
 
     const res = NextResponse.json({
       success: true,
-      user: { srn, name, role },
+      user: { srn, name, role, branch: branch || "", semester: semester || "" },
     });
 
     res.cookies.set(COOKIE_NAME, token, {
