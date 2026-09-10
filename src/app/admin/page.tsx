@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/_components/auth-context";
+import { formatToIST } from "@/lib/date";
 
 /* ------------------------------------------------------------------ */
 /*  types                                                              */
@@ -311,7 +312,7 @@ export default function AdminPage() {
                           <tr key={i}>
                             <td className="font-mono text-sm">{ipObj.ip}</td>
                             <td className="text-fg-dim">{ipObj.hits}</td>
-                            <td className="text-fg-dim text-[0.7rem]">{ipObj.last_seen?.replace("T", " ").slice(0, 16)}</td>
+                            <td className="text-fg-dim text-[0.7rem]">{formatToIST(ipObj.last_seen)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -333,7 +334,7 @@ export default function AdminPage() {
                         <li key={i} className="p-4 flex flex-col gap-1 hover:bg-bg/50 transition-colors">
                           <div className="flex justify-between items-start">
                             <span className="text-sm font-bold text-accent">{act.srn}</span>
-                            <span className="text-[0.65rem] font-mono text-fg-faint">{act.created_at?.replace("T", " ").slice(0, 16)}</span>
+                            <span className="text-[0.65rem] font-mono text-fg-faint">{formatToIST(act.created_at)}</span>
                           </div>
                           <span className="text-sm text-fg-dim">{act.action}</span>
                           {act.ip && <span className="text-[0.65rem] font-mono text-fg-faint mt-1">IP: {act.ip}</span>}
@@ -384,7 +385,7 @@ export default function AdminPage() {
                         <td className="text-fg-dim">{u.branch || "—"}</td>
                         <td className="text-fg-dim">{u.semester || "—"}</td>
                         <td className="text-fg-dim text-[0.72rem]">
-                          {u.last_login?.replace("T", " ").slice(0, 16) || "—"}
+                          {formatToIST(u.last_login) || "—"}
                         </td>
                         <td>
                           {u.srn === user.srn ? (
@@ -442,7 +443,7 @@ export default function AdminPage() {
                     {logs.map((l) => (
                       <tr key={l.id}>
                         <td className="text-fg-dim text-[0.72rem] whitespace-nowrap">
-                          {l.created_at?.replace("T", " ").slice(0, 16) || "—"}
+                          {formatToIST(l.created_at) || "—"}
                         </td>
                         <td className="font-bold">{l.srn}</td>
                         <td className="text-fg-dim font-mono text-[0.72rem]">

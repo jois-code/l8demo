@@ -3,6 +3,7 @@
 import React, { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { formatToIST } from '@/lib/date';
 
 export default function FormResponsesPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: formId } = use(params);
@@ -60,7 +61,7 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
       const answerMap = new Map(response.answers.map((a: any) => [a.field_id, a.value]));
       
       const rowData = [
-        new Date(response.submitted_at?.endsWith('Z') ? response.submitted_at : response.submitted_at + 'Z').toLocaleString(),
+        formatToIST(response.submitted_at),
         response.respondent?.name || 'Anonymous',
         response.respondent?.srn || '-',
         response.respondent?.email || '-',
@@ -162,7 +163,7 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
                       <tr key={response.id}>
                         <td className="text-fg-dim">{idx + 1}</td>
                         <td className="text-fg-dim text-[0.72rem]">
-                          {new Date(response.submitted_at?.endsWith('Z') ? response.submitted_at : response.submitted_at + 'Z').toLocaleString()}
+                          {formatToIST(response.submitted_at)}
                         </td>
                         <td className="font-bold">{response.respondent?.name || 'Anonymous'}</td>
                         <td className="text-fg-dim font-mono">{response.respondent?.srn || '-'}</td>
@@ -228,7 +229,7 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
                   <div>
                     <span className="text-fg-faint block text-xs uppercase tracking-wider mb-1">Submitted At</span>
                     <span className="text-fg-dim">
-                      {new Date(viewingResponse.submitted_at?.endsWith('Z') ? viewingResponse.submitted_at : viewingResponse.submitted_at + 'Z').toLocaleString()}
+                      {formatToIST(viewingResponse.submitted_at)}
                     </span>
                   </div>
                 </div>

@@ -247,9 +247,23 @@ export function Header({ current }: { current?: string }) {
               </Link>
             )}
             {!isLoading && user && (
-              <span className="text-[0.68rem] text-accent mr-1">
-                ● {user.srn}
-              </span>
+              <div className="flex items-center gap-2 mr-1">
+                {user.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    className="navlink text-xs font-mono text-accent"
+                  >
+                    admin
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="navlink text-[var(--danger)] hover:text-[var(--danger)] text-xs font-mono"
+                >
+                  logout
+                </button>
+              </div>
             )}
             <button
               type="button"
@@ -266,16 +280,60 @@ export function Header({ current }: { current?: string }) {
 
       {open && (
         <div className="lg:hidden border-t border-border bg-bg-2">
-          <div className="wrap py-3 grid grid-cols-2 gap-x-4 gap-y-1">
-            {NAV.map((item) => (
-              <NavItem
-                key={item}
-                item={item}
-                current={current}
-                className="text-left"
-                onNavigate={() => setOpen(false)}
-              />
-            ))}
+          <div className="wrap py-3">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+              {NAV.map((item) => (
+                <NavItem
+                  key={item}
+                  item={item}
+                  current={current}
+                  className="text-left"
+                  onNavigate={() => setOpen(false)}
+                />
+              ))}
+            </div>
+
+            {/* mobile auth drawer section */}
+            {!isLoading && (
+              <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
+                {user ? (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[0.72rem] text-fg-dim tracking-wider uppercase font-mono">
+                        <span className="text-accent">●</span> {user.srn}
+                      </span>
+                      {user.role === "admin" && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setOpen(false)}
+                          className="navlink text-xs font-mono text-accent"
+                        >
+                          &gt; admin
+                        </Link>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpen(false);
+                        logout();
+                      }}
+                      className="navlink text-[var(--danger)] hover:text-[var(--danger)] text-xs font-mono"
+                    >
+                      logout
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="navlink text-xs font-mono"
+                  >
+                    &gt; login
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

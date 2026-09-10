@@ -207,19 +207,19 @@ export default function RecruitmentForm({ formId }: { formId: string }) {
         }
       }
 
-      if (strVal && typeof strVal === "string") {
+      if (strVal && typeof strVal === "string" && field.type !== "paragraph") {
         const lowerLabel = field.label.toLowerCase();
         const lowerId = field.id.toLowerCase();
         
         if (lowerLabel.includes("email") || lowerId.includes("email")) {
-          if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(strVal)) {
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(strVal)) {
             setSubmitError(`Please enter a valid email address for "${field.label}".`);
             return false;
           }
         }
         
-        if (lowerLabel.includes("phone") || lowerId.includes("phone") || lowerLabel.includes("whatsapp")) {
-          const digits = strVal.replace(/\\D/g, "");
+        if (lowerLabel.includes("phone") || lowerId.includes("phone") || lowerLabel.includes("mobile") || lowerLabel.includes("contact number") || lowerLabel.includes("whatsapp number") || lowerLabel.includes("whatsapp no")) {
+          const digits = strVal.replace(/\D/g, "");
           if (digits.length < 10) {
             setSubmitError(`Please enter a valid phone number for "${field.label}".`);
             return false;
@@ -237,6 +237,7 @@ export default function RecruitmentForm({ formId }: { formId: string }) {
   };
 
   const handlePrevious = () => {
+    setSubmitError("");
     setCurrentSectionIndex(Math.max(0, clampedIndex - 1));
   };
 
