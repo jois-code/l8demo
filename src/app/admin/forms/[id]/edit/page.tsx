@@ -108,7 +108,7 @@ const FormFieldEditor = ({ field, sectionId, updateField, removeField, moveField
 
 
 export default function FormBuilderPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id: eventId } = use(params);
+  const { id: formId } = use(params);
   const router = useRouter();
   
   const [form, setForm] = useState<any>(null);
@@ -117,38 +117,22 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
 
   useEffect(() => {
     async function load() {
-      // 1. Fetch Event
-      const evRes = await fetch("/api/admin/events");
-      const evData = await evRes.json();
-      const event = evData.events?.find((e: any) => e.id === eventId);
-      
-      if (!event) {
-        alert("Event not found");
-        return;
-      }
-
-      if (event.form_id) {
-        // Fetch existing form
-        const res = await fetch(`/api/forms/${event.form_id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setForm(data);
-        } else {
-          // fallback to blank if somehow missing
-          createBlankForm(event);
-        }
+      const res = await fetch(`/api/forms/${formId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setForm(data);
       } else {
-        createBlankForm(event);
+        createBlankForm();
       }
       setLoading(false);
     }
     load();
-  }, [eventId]);
+  }, [formId]);
 
-  function createBlankForm(event: any) {
+  function createBlankForm() {
     setForm({
-      id: `frm_${Date.now()}`,
-      title: `${event.title} Registration`,
+      id: formId,
+      title: 'Untitled Form',
       description: '',
       is_published: false,
       allow_edit_responses: false,
@@ -167,7 +151,7 @@ export default function FormBuilderPage({ params }: { params: Promise<{ id: stri
   const handleSaveToServer = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/forms/${form.id}?eventId=${eventId}`, {
+      const res = await fetch(`/api/forms/${form.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)

@@ -17,6 +17,8 @@ export interface User {
   srn: string;
   name: string;
   role: "admin" | "member";
+  branch: string;
+  semester: string;
 }
 
 interface AuthState {

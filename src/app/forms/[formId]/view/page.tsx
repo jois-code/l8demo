@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, use } from 'react';
+import React, { useEffect, useState, use, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -58,6 +58,19 @@ export default function FormViewerPage({ params }: { params: Promise<{ formId: s
     fetchForm();
   }, [formId]);
 
+  // Compute visible sections based on current answers
+  const visibleSections = useMemo(() => {
+    if (!form) return [];
+    return form.sections.filter((section: any) => {
+      if (!section.show_if_field_id || !section.show_if_option_id) return true;
+      const answer = answers[section.show_if_field_id];
+      if (Array.isArray(answer)) {
+        return answer.includes(section.show_if_option_id);
+      }
+      return answer === section.show_if_option_id;
+    });
+  }, [form, answers]);
+
   if (loading) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center text-fg-dim font-mono">
@@ -103,7 +116,11 @@ export default function FormViewerPage({ params }: { params: Promise<{ formId: s
     </div>
   );
 
-  const currentSection = form.sections[currentSectionIndex];
+  // Clamp current index to visible sections range
+  const clampedIndex = Math.min(currentSectionIndex, visibleSections.length - 1);
+  const currentSection = visibleSections[clampedIndex];
+
+  if (!currentSection) return <div className="p-8 text-center text-[var(--danger)]">No visible sections.</div>;
 
   const handleAnswerChange = (fieldId: string, value: any) => {
     setAnswers(prev => ({ ...prev, [fieldId]: value }));
@@ -120,9 +137,45 @@ export default function FormViewerPage({ params }: { params: Promise<{ formId: s
     });
   };
 
-  const getNextSectionIndex = () => {
+  const validateCurrentSection = () => {
+    for (const field of currentSection.fields) {
+      const val = answers[field.id];
+      const strVal = typeof val === "string" ? val.trim() : val;
+
+      if (field.required) {
+        if (!val || (Array.isArray(val) && val.length === 0) || (typeof val === "string" && strVal === "")) {
+          alert(`"${field.label}" is a required field.`);
+          return false;
+        }
+      }
+
+      if (strVal && typeof strVal === "string") {
+        const lowerLabel = field.label.toLowerCase();
+        const lowerId = field.id.toLowerCase();
+        
+        if (lowerLabel.includes("email") || lowerId.includes("email")) {
+          if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(strVal)) {
+            alert(`Please enter a valid email address for "${field.label}".`);
+            return false;
+          }
+        }
+        
+        if (lowerLabel.includes("phone") || lowerId.includes("phone") || lowerLabel.includes("whatsapp")) {
+          const digits = strVal.replace(/\\D/g, "");
+          if (digits.length < 10) {
+            alert(`Please enter a valid phone number for "${field.label}".`);
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  };
+
+  const handleNext = () => {
+    if (!validateCurrentSection()) return;
+    // Check if any multiple_choice field has a next_section_id override
     let overrideNextSectionId = null;
-    
     for (const field of currentSection.fields) {
       if (field.type === 'multiple_choice') {
         const answeredOptionId = answers[field.id];
@@ -137,33 +190,18 @@ export default function FormViewerPage({ params }: { params: Promise<{ formId: s
     }
 
     if (overrideNextSectionId) {
-      const index = form.sections.findIndex((s: any) => s.id === overrideNextSectionId);
-      if (index !== -1) return index;
-    }
-
-    return currentSectionIndex + 1;
-  };
-
-  const validateCurrentSection = () => {
-    for (const field of currentSection.fields) {
-      if (field.required) {
-        const val = answers[field.id];
-        if (!val || (Array.isArray(val) && val.length === 0)) {
-          alert(`"${field.label}" is a required field.`);
-          return false;
-        }
+      const idx = visibleSections.findIndex((s: any) => s.id === overrideNextSectionId);
+      if (idx !== -1) {
+        setCurrentSectionIndex(idx);
+        return;
       }
     }
-    return true;
-  };
 
-  const handleNext = () => {
-    if (!validateCurrentSection()) return;
-    setCurrentSectionIndex(getNextSectionIndex());
+    setCurrentSectionIndex(clampedIndex + 1);
   };
 
   const handlePrevious = () => {
-    setCurrentSectionIndex(Math.max(0, currentSectionIndex - 1));
+    setCurrentSectionIndex(Math.max(0, clampedIndex - 1));
   };
 
   const handleSubmit = async () => {
@@ -193,13 +231,13 @@ export default function FormViewerPage({ params }: { params: Promise<{ formId: s
     }
   };
 
-  const isLastSection = getNextSectionIndex() >= form.sections.length;
+  const isLastSection = clampedIndex >= visibleSections.length - 1;
 
   return (
     <div className="min-h-screen bg-bg text-fg py-12 px-4">
       <div className="max-w-3xl mx-auto space-y-6">
         
-        {currentSectionIndex === 0 && (
+        {clampedIndex === 0 && (
           <div className="bg-bg-3 border-t-8 border-t-accent border border-border p-8 shadow-md">
             <h1 className="text-4xl font-bold font-display mb-4">{form.title}</h1>
             {form.description && (
@@ -279,7 +317,7 @@ export default function FormViewerPage({ params }: { params: Promise<{ formId: s
 
         <div className="flex items-center justify-between pt-4">
           <div>
-            {currentSectionIndex > 0 && (
+            {clampedIndex > 0 && (
               <button 
                 onClick={handlePrevious}
                 className="btn border border-border"
@@ -288,7 +326,10 @@ export default function FormViewerPage({ params }: { params: Promise<{ formId: s
               </button>
             )}
           </div>
-          <div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-fg-faint font-mono">
+              {clampedIndex + 1} / {visibleSections.length}
+            </span>
             {isLastSection ? (
               <button 
                 onClick={handleSubmit}

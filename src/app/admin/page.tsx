@@ -55,16 +55,17 @@ export default function AdminPage() {
   const [users, setUsers] = useState<DBUser[]>([]);
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [events, setEvents] = useState<AdminEvent[]>([]);
+  const [forms, setForms] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [fetching, setFetching] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
-  const [activeTab, setActiveTabState] = useState<"dashboard" | "users" | "logs" | "events">("dashboard");
+  const [activeTab, setActiveTabState] = useState<"dashboard" | "users" | "logs" | "events" | "forms">("dashboard");
 
   // Sync tab with URL hash
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace("#", "");
-      if (["dashboard", "users", "logs", "events"].includes(hash)) {
+      if (["dashboard", "users", "logs", "events", "forms"].includes(hash)) {
         setActiveTabState(hash as any);
       }
     };
@@ -73,7 +74,7 @@ export default function AdminPage() {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  const setActiveTab = (tab: "dashboard" | "users" | "logs" | "events") => {
+  const setActiveTab = (tab: "dashboard" | "users" | "logs" | "events" | "forms") => {
     setActiveTabState(tab);
     window.location.hash = tab;
   };
@@ -86,11 +87,12 @@ export default function AdminPage() {
   const fetchData = useCallback(async () => {
     setFetching(true);
     try {
-      const [usersRes, logsRes, eventsRes, statsRes] = await Promise.all([
+      const [usersRes, logsRes, eventsRes, statsRes, formsRes] = await Promise.all([
         fetch("/api/admin/users"),
         fetch("/api/admin/audit-logs"),
         fetch("/api/admin/events"),
         fetch("/api/admin/stats"),
+        fetch("/api/admin/forms"),
       ]);
 
       if (usersRes.ok) {
@@ -108,6 +110,10 @@ export default function AdminPage() {
       if (statsRes.ok) {
         const d = await statsRes.json();
         setStats(d ?? null);
+      }
+      if (formsRes.ok) {
+        const d = await formsRes.json();
+        setForms(d.forms ?? []);
       }
     } catch {
       // silent
@@ -246,6 +252,13 @@ export default function AdminPage() {
               onClick={() => setActiveTab("events")}
             >
               events ({events.length})
+            </button>
+            <button
+              type="button"
+              className={`admin-tab ${activeTab === "forms" ? "admin-tab-active" : ""}`}
+              onClick={() => setActiveTab("forms")}
+            >
+              forms ({forms.length})
             </button>
             <button
               type="button"
@@ -514,6 +527,65 @@ export default function AdminPage() {
               </div>
             </div>
           )}
+
+          {/* forms table */}
+          {activeTab === "forms" && (
+            <div className="admin-card">
+              <div className="flex justify-end p-4 border-b border-border">
+                <p className="text-xs text-fg-dim">Forms attached to events are also listed here.</p>
+              </div>
+              <div className="admin-table-wrap">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>ID</th>
+                      <th>Status</th>
+                      <th>Responses</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {forms.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="text-center text-fg-faint py-8">
+                          {fetching ? "loading..." : "no forms found"}
+                        </td>
+                      </tr>
+                    )}
+                    {forms.map((f) => (
+                      <tr key={f.id}>
+                        <td className="font-bold max-w-xs truncate" title={f.title}>{f.title}</td>
+                        <td className="text-fg-dim font-mono text-[0.72rem]">{f.id}</td>
+                        <td>
+                          {f.is_published ? (
+                            <span className="admin-badge text-emerald-400 border-emerald-400/30">Published</span>
+                          ) : (
+                            <span className="admin-badge">Draft</span>
+                          )}
+                          {f.closes_at && new Date() > new Date(f.closes_at.endsWith('Z') ? f.closes_at : f.closes_at + 'Z') && (
+                            <span className="admin-badge ml-2 text-rose-400 border-rose-400/30">Closed</span>
+                          )}
+                        </td>
+                        <td className="font-mono">{f.response_count || 0}</td>
+                        <td>
+                          <div className="flex items-center gap-2">
+                            <Link href={`/admin/forms/${f.id}/edit`} className="btn text-xs px-2 py-1">
+                              Edit Form
+                            </Link>
+                            <Link href={`/admin/forms/${f.id}/responses`} className="btn text-xs px-2 py-1">
+                              Responses
+                            </Link>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </>

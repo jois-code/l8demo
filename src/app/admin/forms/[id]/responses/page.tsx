@@ -12,6 +12,7 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
   const [responses, setResponses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewingResponse, setViewingResponse] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,6 +98,19 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
     document.body.removeChild(link);
   };
 
+  const deleteResponse = async (responseId: string) => {
+    if (!confirm("Are you sure you want to delete this response?")) return;
+    try {
+      const res = await fetch(`/api/forms/${formId}/responses/${responseId}`, {
+        method: "DELETE"
+      });
+      if (!res.ok) throw new Error("Failed to delete response");
+      setResponses(responses.filter((r) => r.id !== responseId));
+    } catch (err: any) {
+      alert(err.message || "An error occurred");
+    }
+  };
+
   if (loading) return <div className="p-8 admin-page min-h-screen">loading...</div>;
   if (error || !form) return <div className="p-8 admin-page min-h-screen text-[var(--danger)]">{error}</div>;
 
@@ -138,6 +152,7 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
                         {field.label}
                       </th>
                     ))}
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -172,11 +187,77 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
                             </td>
                           );
                         })}
+                        <td>
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => setViewingResponse(response)} className="btn text-xs px-2 py-1">View</button>
+                            <button onClick={() => deleteResponse(response.id)} className="btn text-[var(--danger)] border-[var(--danger)] hover:bg-[var(--danger)] hover:text-white text-xs px-2 py-1">Delete</button>
+                          </div>
+                        </td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* View Response Modal */}
+        {viewingResponse && (
+          <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div className="bg-bg border border-border p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto admin-card relative">
+              <div className="flex justify-between items-center mb-6 border-b border-border pb-4">
+                <h2 className="text-xl font-bold font-display">Response Details</h2>
+                <button onClick={() => setViewingResponse(null)} className="btn px-2 py-1 text-xs">Close</button>
+              </div>
+              
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4 text-sm bg-bg-3 p-4 rounded-md">
+                  <div>
+                    <span className="text-fg-faint block text-xs uppercase tracking-wider mb-1">Name</span>
+                    <span className="font-bold">{viewingResponse.respondent?.name || 'Anonymous'}</span>
+                  </div>
+                  <div>
+                    <span className="text-fg-faint block text-xs uppercase tracking-wider mb-1">SRN</span>
+                    <span className="font-mono">{viewingResponse.respondent?.srn || '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-fg-faint block text-xs uppercase tracking-wider mb-1">Email</span>
+                    <span>{viewingResponse.respondent?.email || '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-fg-faint block text-xs uppercase tracking-wider mb-1">Submitted At</span>
+                    <span className="text-fg-dim">
+                      {new Date(viewingResponse.submitted_at?.endsWith('Z') ? viewingResponse.submitted_at : viewingResponse.submitted_at + 'Z').toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {allFields.map((field: any) => {
+                    const answerMap = new Map(viewingResponse.answers.map((a: any) => [a.field_id, a.value]));
+                    const val = answerMap.get(field.id);
+                    let displayVal = val;
+                    
+                    if (Array.isArray(val)) {
+                      displayVal = val.map(v => {
+                        const opt = field.options?.find((o:any) => o.id === v);
+                        return opt ? opt.text : v;
+                      }).join(', ');
+                    } else if (field.type === 'multiple_choice') {
+                      const opt = field.options?.find((o:any) => o.id === val);
+                      if (opt) displayVal = opt.text;
+                    }
+
+                    return (
+                      <div key={field.id} className="border-b border-border pb-4 last:border-0">
+                        <label className="block text-sm text-fg-dim mb-1">{field.label}</label>
+                        <p className="whitespace-pre-wrap font-medium">{String(displayVal || '-')}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         )}

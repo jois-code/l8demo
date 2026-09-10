@@ -230,7 +230,7 @@ export async function POST(req: Request) {
       (row.rows[0]?.role as "admin" | "member") || "member";
 
     /* ── 8. Sign JWT & set cookie ───────────────────────────────── */
-    const token = await signToken({ srn, name, role });
+    const token = await signToken({ srn, name, role, branch: branch || "", semester: semester || "" });
 
     const res = NextResponse.json({
       success: true,

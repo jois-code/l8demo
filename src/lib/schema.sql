@@ -59,7 +59,9 @@ CREATE TABLE IF NOT EXISTS form_sections (
     form_id TEXT NOT NULL REFERENCES forms(id) ON DELETE CASCADE,
     title TEXT,
     description TEXT,
-    order_index INTEGER NOT NULL
+    order_index INTEGER NOT NULL,
+    show_if_field_id TEXT,   -- only show this section if answer for this field...
+    show_if_option_id TEXT   -- ...includes this option ID
 );
 
 CREATE TABLE IF NOT EXISTS form_fields (

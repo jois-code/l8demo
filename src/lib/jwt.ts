@@ -8,6 +8,8 @@ export interface L8TokenPayload extends JWTPayload {
   srn: string;
   name: string;
   role: "admin" | "member";
+  branch: string;
+  semester: string;
 }
 
 function getSecret() {
@@ -24,6 +26,8 @@ export async function signToken(payload: {
   srn: string;
   name: string;
   role: "admin" | "member";
+  branch: string;
+  semester: string;
 }): Promise<string> {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })

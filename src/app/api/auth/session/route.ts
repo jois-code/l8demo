@@ -26,6 +26,8 @@ export async function GET() {
       srn: payload.srn,
       name: payload.name,
       role: payload.role,
+      branch: payload.branch || "",
+      semester: payload.semester || "",
     },
   });
 }

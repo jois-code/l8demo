@@ -965,3 +965,57 @@
     opacity: 1;
   }
 }
+
+/* ---------- recruitment form ---------- */
+
+.field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.1rem; }
+.field label { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-dim); }
+.field .hint { font-size: 0.72rem; color: var(--fg-faint); }
+
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="url"],
+.field input[type="tel"],
+.field select,
+.field textarea {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 0.65rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  width: 100%;
+}
+.field textarea { resize: vertical; min-height: 5.5rem; }
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.field.has-error input, .field.has-error select, .field.has-error textarea {
+  border-color: var(--danger);
+}
+.field .error { font-size: 0.72rem; color: var(--danger); }
+
+.checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; }
+.chip-check {
+  display: flex; align-items: center; gap: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  padding: 0.5rem 0.65rem;
+  font-size: 0.8rem;
+  color: var(--fg-dim);
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.chip-check:has(input:checked) {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+.chip-check input { accent-color: var(--accent); }
+.chip-check-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.chip-check-disabled input { cursor: not-allowed; }

@@ -46,6 +46,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ formId: 
         title: s.title,
         description: s.description,
         order_index: s.order_index,
+        show_if_field_id: s.show_if_field_id || null,
+        show_if_option_id: s.show_if_option_id || null,
         fields: sFields
       };
     });
@@ -107,8 +109,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ formId: 
     if (Array.isArray(body.sections)) {
       body.sections.forEach((s: any, sIdx: number) => {
         queries.push({
-          sql: `INSERT INTO form_sections (id, form_id, title, description, order_index) VALUES (?, ?, ?, ?, ?)`,
-          args: [s.id, formId, s.title || "", s.description || "", sIdx]
+          sql: `INSERT INTO form_sections (id, form_id, title, description, order_index, show_if_field_id, show_if_option_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          args: [s.id, formId, s.title || "", s.description || "", sIdx, s.show_if_field_id || null, s.show_if_option_id || null]
         });
 
         if (Array.isArray(s.fields)) {

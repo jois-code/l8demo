@@ -78,7 +78,9 @@ async function ensureSchema(client: Client) {
         form_id TEXT NOT NULL REFERENCES forms(id) ON DELETE CASCADE,
         title TEXT,
         description TEXT,
-        order_index INTEGER NOT NULL
+        order_index INTEGER NOT NULL,
+        show_if_field_id TEXT,
+        show_if_option_id TEXT
     )`,
     `CREATE TABLE IF NOT EXISTS form_fields (
         id TEXT PRIMARY KEY,
@@ -109,6 +111,15 @@ async function ensureSchema(client: Client) {
         value TEXT
     )`
   ]);
+
+  // Safe migration for existing databases — add columns if missing
+  const migrations = [
+    `ALTER TABLE form_sections ADD COLUMN show_if_field_id TEXT`,
+    `ALTER TABLE form_sections ADD COLUMN show_if_option_id TEXT`,
+  ];
+  for (const sql of migrations) {
+    try { await client.execute(sql); } catch { /* column already exists */ }
+  }
 
   _initialised = true;
 }
